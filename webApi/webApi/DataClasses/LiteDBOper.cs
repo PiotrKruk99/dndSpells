@@ -2,7 +2,7 @@ using LiteDB;
 
 namespace webApi.Database;
 
-public class LiteDBOper : ILiteDBOper
+public class LiteDBOper
 {
     private LiteDatabase? dataBase;
     private string filePath = @"AppData/apiData.ldb";

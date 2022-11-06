@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using webApi.Database;
+using webApi.Services;
 using webApi.Api;
 
 namespace webApi.Controllers;
@@ -9,17 +10,19 @@ namespace webApi.Controllers;
 public class DndApiController : ControllerBase
 {
     private readonly ILogger<DndApiController> _logger;
-    private ILiteDBOper _mainbase;
+    private LiteDBOper _mainbase;
+    private IApiService _apiService;
 
-    public DndApiController(ILogger<DndApiController> logger, ILiteDBOper mainbase)
+    public DndApiController(ILogger<DndApiController> logger, LiteDBOper mainbase, IApiService apiService)
     {
         _logger = logger;
         _mainbase = mainbase;
+        _apiService = apiService;
     }
 
     [HttpGet]
-    public async Task<SpellsList?> GetAllSpellsNames()
+    public async Task<IActionResult> GetAllSpellsNames()
     {
-        return await DndApi.GetAllSpells();
+        return Ok(await _apiService.GetAllSpells());
     }
 }

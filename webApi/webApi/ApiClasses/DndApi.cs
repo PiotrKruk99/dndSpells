@@ -7,20 +7,32 @@ public static class DndApi
     private static string uri = @"https://www.dnd5eapi.co/api/";
     private static HttpClient apiClient = new HttpClient();
 
-    public static async Task<SpellsList?> GetAllSpells()
+    private static async Task<T?> GetFromApiAsync<T>(string uriEnd)
     {
-        var request = new HttpRequestMessage();
-        request.Method = HttpMethod.Get;
-        request.RequestUri = new Uri(uri + "spells");
+        var request = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri(uri + uriEnd)
+        };
 
         var response = await apiClient.SendAsync(request);
 
         if (response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<SpellsList>(body);
+            return JsonConvert.DeserializeObject<T>(body);
         }
 
-        return null;
+        return default(T);
+    }
+
+    public static async Task<SpellsList?> GetAllSpells()
+    {
+        return await GetFromApiAsync<SpellsList>("spells");
+    }
+
+    public static async Task<SpellLong?> GetSpell(string index)
+    {
+        return await GetFromApiAsync<SpellLong>("spells/" + index);
     }
 }

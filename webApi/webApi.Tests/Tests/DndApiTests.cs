@@ -15,4 +15,15 @@ public class DndApiTests
         result.Result!.count.Should().BeGreaterThan(0);
         result.Result!.results!.Count.Should().BeGreaterThan(0);
     }
+
+    [Theory]
+    [InlineData("fireball")]
+    [InlineData("fire-bolt")]
+    public void GetSpellTest(string index)
+    {
+        var result = DndApi.GetSpell(index);
+        result.Should().NotBeNull();
+        result.Result.Should().NotBeNull();
+        result.Result!.name.Should().Be("Fireball");
+    }
 }

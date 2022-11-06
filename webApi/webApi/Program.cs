@@ -1,4 +1,5 @@
 using webApi.Database;
+using webApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ILiteDBOper, LiteDBOper>();
+builder.Services.AddSingleton<LiteDBOper>();
+builder.Services.AddTransient<IApiService, DndApiService>();
+
 
 var app = builder.Build();
 
