@@ -24,6 +24,7 @@ public class DndApiTests
         var result = DndApi.GetSpell(index);
         result.Should().NotBeNull();
         result.Result.Should().NotBeNull();
-        result.Result!.name.Should().Be("Fireball");
+        result.Result!.name.Should().BeOneOf("Fire Bolt", "Fireball");
+        result.Result!.area_of_effect?.size.Should().BeGreaterThan(3);
     }
 }
