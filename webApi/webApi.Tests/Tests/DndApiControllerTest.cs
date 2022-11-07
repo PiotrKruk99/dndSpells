@@ -29,5 +29,6 @@ public class DndApiControllerTests
 
         result.Should().NotBeNull();
         result!.count.Should().Be(1);
+        result!.results!.ToArray()[0].name.Should().Be("Fireball");
     }
 }
