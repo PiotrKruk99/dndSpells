@@ -27,4 +27,14 @@ public class DndApiTests
         result.Result!.name.Should().BeOneOf("Fire Bolt", "Fireball");
         result.Result!.area_of_effect?.size.Should().BeGreaterThan(3);
     }
+
+    [Theory]
+    [InlineData("lalala")]
+    [InlineData("")]
+    public void GetSpell_ShouldBeNull_Test(string index)
+    {
+        var result = DndApi.GetSpell(index);
+        result.Should().NotBeNull();
+        result.Result.Should().BeNull();
+    }
 }

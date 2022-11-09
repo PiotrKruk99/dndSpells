@@ -33,6 +33,9 @@ public static class DndApi
 
     public static async Task<SpellLong?> GetSpell(string index)
     {
-        return await GetFromApiAsync<SpellLong>("spells/" + index);
+        if (index.Length == 0)
+            return null;
+        else
+            return await GetFromApiAsync<SpellLong>("spells/" + index);
     }
 }

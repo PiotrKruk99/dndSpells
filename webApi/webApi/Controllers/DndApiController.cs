@@ -18,8 +18,17 @@ public class DndApiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllSpellsNames()
+    public async Task<IActionResult> GetAllSpells()
     {
         return Ok(await _apiService.GetAllSpells());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetSpell(string index)
+    {
+        if (index.Length == 0)
+            return BadRequest();
+        else
+            return Ok(await _apiService.GetSpell(index));
     }
 }

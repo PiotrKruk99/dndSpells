@@ -17,4 +17,10 @@ public class DndApiService : ApiService, IApiService
         var allSpells = await DndApi.GetAllSpells();
         return allSpells;
     }
+
+    public async Task<SpellLong?> GetSpell(string index)
+    {
+        var spell = await DndApi.GetSpell(index);
+        return spell;
+    }
 }

@@ -24,7 +24,7 @@ public class DndApiControllerTests
     }
 
     [Fact]
-    public async void GetAllSpellsNames_Controller_Test()
+    public async void GetAllSpells_Controller_Test()
     {
         _service.Setup(x => x.GetAllSpells())
                 .ReturnsAsync(new Api.SpellsList()
@@ -39,7 +39,7 @@ public class DndApiControllerTests
                     }
                 });
 
-        var result = await _controller.GetAllSpellsNames() as ObjectResult;
+        var result = await _controller.GetAllSpells() as ObjectResult;
 
         result.Should().NotBeNull();
         result!.Value.Should().NotBeNull();
@@ -47,6 +47,17 @@ public class DndApiControllerTests
         (result!.Value as SpellsList)!.results.Should().NotBeNull();
         (result!.Value as SpellsList)!.results!.Count.Should().Be(1);
         (result!.Value as SpellsList)!.results!.Count.Should().Be(1);
+        (result!.Value as SpellsList)!.results![0].index.Should().Be("fireball");
         (result!.Value as SpellsList)!.results![0].name.Should().Be("Fireball");
+        (result!.Value as SpellsList)!.results![0].url.Should().Be(@"http://some.url");
+    }
+
+    [Fact]
+    public async void GetSpell_ShouldReturnBadRequest_Test()
+    {
+        var result = await _controller.GetSpell("") as ObjectResult;
+
+        result.Should().NotBeNull();
+        result!.StatusCode.Should().Be(400);
     }
 }
