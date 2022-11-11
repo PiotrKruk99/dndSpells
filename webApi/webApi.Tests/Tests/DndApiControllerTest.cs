@@ -42,6 +42,7 @@ public class DndApiControllerTests
         var result = await _controller.GetAllSpells() as ObjectResult;
 
         result.Should().NotBeNull();
+        result!.StatusCode.Should().Be(200);
         result!.Value.Should().NotBeNull();
         (result!.Value as SpellsList)!.count.Should().Be(1);
         (result!.Value as SpellsList)!.results.Should().NotBeNull();
@@ -55,9 +56,8 @@ public class DndApiControllerTests
     [Fact]
     public async void GetSpell_ShouldReturnBadRequest_Test()
     {
-        var result = await _controller.GetSpell("") as ObjectResult;
+        var result = await _controller.GetSpell("");
 
-        result.Should().NotBeNull();
-        result!.StatusCode.Should().Be(400);
+        result.Should().BeOfType<BadRequestResult>();
     }
 }
