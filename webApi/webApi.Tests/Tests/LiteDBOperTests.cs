@@ -7,7 +7,7 @@ namespace webApi.Tests;
 public class LiteDBOperTests
 {
     [Fact]
-    public void Constructortest()
+    public void ConstructorTest()
     {
         var result = new LiteDBOper();
         result.Should().NotBeNull();

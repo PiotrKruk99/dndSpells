@@ -4,6 +4,6 @@ namespace webApi.Services;
 
 public abstract class ApiService
 {
-    public ApiService(LiteDBOper ldbBase)
+    public ApiService(ILiteDBOper ldbBase)
     { }
 }

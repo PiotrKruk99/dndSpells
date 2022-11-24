@@ -9,7 +9,7 @@ namespace webApi.Tests;
 
 public class DndApiServiceTests
 {
-    private readonly Mock<LiteDBOper> _liteDBOper = new Mock<LiteDBOper>();
+    private readonly Mock<ILiteDBOper> _liteDBOper = new Mock<ILiteDBOper>();
     private DndApiService _dndApiService;
 
     public DndApiServiceTests()

@@ -5,9 +5,9 @@ namespace webApi.Services;
 
 public class DndApiService : ApiService, IApiService
 {
-    private readonly LiteDBOper _ldbBase;
+    private readonly ILiteDBOper _ldbBase;
 
-    public DndApiService(LiteDBOper ldbBase) : base(ldbBase)
+    public DndApiService(ILiteDBOper ldbBase) : base(ldbBase)
     {
         _ldbBase = ldbBase;
     }
