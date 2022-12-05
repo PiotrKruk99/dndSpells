@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using webApi.Database;
 using webApi.Services;
-using webApi.Api;
+using webApi.Api.DataClasses;
 
 namespace webApi.Tests;
 

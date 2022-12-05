@@ -1,8 +1,8 @@
-namespace webApi.Api;
+namespace webApi.Api.DataClasses;
 
 public class SpellLong
     {
-        public string? _id { get; set; }
+        public int? _id { get; set; }
         public string? index { get; set; }
         public string? name { get; set; }
         public List<string>? desc { get; set; }

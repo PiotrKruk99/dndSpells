@@ -1,7 +1,7 @@
 using Xunit;
 using Moq;
 using FluentAssertions;
-using webApi.Api;
+using webApi.Api.DataClasses;
 using webApi.Services;
 using webApi.Controllers;
 using System.Collections.Generic;
@@ -27,11 +27,11 @@ public class DndApiControllerTests
     public async void GetAllSpells_Controller_Test()
     {
         _service.Setup(x => x.GetAllSpells())
-                .ReturnsAsync(new Api.SpellsList()
+                .ReturnsAsync(new SpellsList()
                 {
                     count = 1,
                     results = new List<SpellShort>() {
-                        new Api.SpellShort() {
+                        new SpellShort() {
                             index = "fireball",
                             name = "Fireball",
                             url = @"http://some.url"

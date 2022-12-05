@@ -1,4 +1,4 @@
-using webApi.Api;
+using webApi.Api.DataClasses;
 
 namespace webApi.Services;
 

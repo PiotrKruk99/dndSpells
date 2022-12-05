@@ -1,8 +1,9 @@
-namespace webApi.Api;
+namespace webApi.Api.DataClasses;
 
 public class Class
-    {
-        public string? index { get; set; }
-        public string? name { get; set; }
-        public string? url { get; set; }
-    }
+{
+    public int? _id { get; set; }
+    public string? index { get; set; }
+    public string? name { get; set; }
+    public string? url { get; set; }
+}

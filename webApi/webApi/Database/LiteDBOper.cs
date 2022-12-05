@@ -19,8 +19,13 @@ public class LiteDBOper : ILiteDBOper
         if (IsDatabase)
             return true;
 
-        if (!Directory.Exists(Path.GetDirectoryName(filePath)))
-            throw new Exception(Path.GetFullPath(filePath) + " not exists");
+        string? directoryName = Path.GetDirectoryName(filePath);
+
+        if (directoryName is null)
+            throw new Exception("Invalid database directory");
+
+        if (!Directory.Exists(directoryName))
+            throw new Exception(Path.GetFullPath(directoryName) + " not exists");
 
         var connStr = new ConnectionString
         {
@@ -41,5 +46,21 @@ public class LiteDBOper : ILiteDBOper
         {
             return false;
         }
+    }
+
+    public DateTime GetLastUpdate()
+    {
+        if (dataBase is null && !OpenDatabase())
+            throw new Exception("database is closed and cannot be opened");
+
+        var col = dataBase!.GetCollection<LastUpdate>();
+
+        var lastUpdate = col.Query().FirstOrDefault();
+
+        if (lastUpdate is not null)
+            return lastUpdate.UpdateDate;
+        else
+            return DateTime.Now.AddDays(-2);
+
     }
 }
