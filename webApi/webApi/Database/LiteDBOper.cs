@@ -1,4 +1,5 @@
 using LiteDB;
+using webApi.Api.DataClasses;
 
 namespace webApi.Database;
 
@@ -62,5 +63,10 @@ public class LiteDBOper : ILiteDBOper
         else
             return DateTime.Now.AddDays(-2);
 
+    }
+
+    public bool UpdateDatabase(List<SpellLong> spellsList)
+    {
+        throw new NotImplementedException("UpdateDatabase");
     }
 }

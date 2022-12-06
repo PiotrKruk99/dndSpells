@@ -12,13 +12,61 @@ public class DndApiService : ApiService, IApiService
     {
         _ldbBase = ldbBase;
 
+        UpdateDatabase().Start();
+    }
+
+    private async Task<bool> UpdateDatabase()
+    {
         if (_ldbBase.GetLastUpdate().AddDays(1) < DateTime.Now)
         {
             try
             {
-                
+                var lastUpdate = _ldbBase.GetLastUpdate();
+
+                if (lastUpdate.AddDays(1) < DateTime.Now)
+                {
+                    var allSpells = await DndApi.GetAllSpells();
+
+                    if (allSpells is null || allSpells.results is null)
+                        return false;
+
+                    List<SpellLong> spellsList = new List<SpellLong>();
+
+                    foreach (var spellShort in allSpells.results)
+                    {
+                        if (spellShort.index is not null)
+                        {
+                            var spellLong = await DndApi.GetSpell(spellShort.index);
+
+                            if (spellLong is null)
+                            {
+                                Console.WriteLine("spellLong null reference");
+                                return false;
+                            }
+                            else
+                            {
+                                spellsList.Add(spellLong);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("spellShort.index null reference");
+                            return false;
+                        }
+                    }
+
+                    _ldbBase.UpdateDatabase(spellsList);
+                }
+
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc.ToString());
+                return false;
             }
         }
+
+        return false;
     }
 
     public async Task<SpellsList?> GetAllSpells()
