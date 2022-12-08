@@ -12,7 +12,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ILiteDBOper, LiteDBOper>();
 builder.Services.AddTransient<IApiService, DndApiService>();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

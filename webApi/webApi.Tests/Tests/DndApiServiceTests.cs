@@ -4,6 +4,7 @@ using Moq;
 using webApi.Database;
 using webApi.Services;
 using webApi.Api.DataClasses;
+using Microsoft.Extensions.Logging;
 
 namespace webApi.Tests;
 
@@ -11,10 +12,11 @@ public class DndApiServiceTests
 {
     private readonly Mock<ILiteDBOper> _liteDBOper = new Mock<ILiteDBOper>();
     private DndApiService _dndApiService;
+    private Mock<ILogger<DndApiService>> _logger = new Mock<ILogger<DndApiService>>();
 
     public DndApiServiceTests()
     {
-        _dndApiService = new DndApiService(_liteDBOper.Object);
+        _dndApiService = new DndApiService(_liteDBOper.Object, _logger.Object);
     }
 
     [Fact]

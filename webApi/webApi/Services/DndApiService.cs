@@ -7,66 +7,78 @@ namespace webApi.Services;
 public class DndApiService : ApiService, IApiService
 {
     private readonly ILiteDBOper _ldbBase;
+    private readonly ILogger<DndApiService> _logger;
+    private Task<bool> updateDatabaseTask = new Task<bool>(() => { return true; });
+    private static Task updateDatabaseTaskWatcher = Task.CompletedTask;
+    private Action updateDatabaseAction;
 
-    public DndApiService(ILiteDBOper ldbBase) : base(ldbBase)
+    public DndApiService(ILiteDBOper ldbBase, ILogger<DndApiService> logger) : base(ldbBase, logger)
     {
         _ldbBase = ldbBase;
+        _logger = logger;
 
-        UpdateDatabase().Start();
+        updateDatabaseAction = () =>
+            {
+                if (updateDatabaseTask.Exception is not null)
+                {
+                    foreach (var exc in updateDatabaseTask.Exception.Flatten().InnerExceptions)
+                    {
+                        _logger.Log(LogLevel.Warning, exc.ToString());
+                    }
+                }
+
+                if (updateDatabaseTask.Exception is not null || !updateDatabaseTask.Result)
+                {
+                    _logger.Log(LogLevel.Error, "error while updating database");
+                }
+            };
+
+        if (updateDatabaseTaskWatcher.IsCompleted && _ldbBase.GetLastUpdate().AddDays(1) < DateTime.Now)
+        {
+            updateDatabaseTask = UpdateDatabase();
+            updateDatabaseTaskWatcher = updateDatabaseTask.ContinueWith(x => updateDatabaseAction());
+        }
     }
 
     private async Task<bool> UpdateDatabase()
     {
-        if (_ldbBase.GetLastUpdate().AddDays(1) < DateTime.Now)
+        var allSpells = await DndApi.GetAllSpells();
+
+        if (allSpells is null || allSpells.results is null)
         {
-            try
-            {
-                var lastUpdate = _ldbBase.GetLastUpdate();
+            _logger.Log(LogLevel.Warning, "GetAllSpells returns empty list");
+            return false;
+        }
 
-                if (lastUpdate.AddDays(1) < DateTime.Now)
+        List<SpellLong> spellsList = new List<SpellLong>();
+
+        foreach (var spellShort in allSpells.results)
+        {
+            if (spellShort.index is not null)
+            {
+                var spellLong = await DndApi.GetSpell(spellShort.index);
+
+                if (spellLong is null)
                 {
-                    var allSpells = await DndApi.GetAllSpells();
-
-                    if (allSpells is null || allSpells.results is null)
-                        return false;
-
-                    List<SpellLong> spellsList = new List<SpellLong>();
-
-                    foreach (var spellShort in allSpells.results)
-                    {
-                        if (spellShort.index is not null)
-                        {
-                            var spellLong = await DndApi.GetSpell(spellShort.index);
-
-                            if (spellLong is null)
-                            {
-                                Console.WriteLine("spellLong null reference");
-                                return false;
-                            }
-                            else
-                            {
-                                spellsList.Add(spellLong);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("spellShort.index null reference");
-                            return false;
-                        }
-                    }
-
-                    _ldbBase.UpdateDatabase(spellsList);
+                    _logger.Log(LogLevel.Warning, "spellLong null reference");
+                    return false;
                 }
-
+                else
+                {
+                    spellsList.Add(spellLong);
+                }
             }
-            catch (Exception exc)
+            else
             {
-                Console.WriteLine(exc.ToString());
+                _logger.Log(LogLevel.Warning, "spellShort.index null reference");
                 return false;
             }
         }
 
-        return false;
+        if (_ldbBase.UpdateDatabase(spellsList))
+            return true;
+        else
+            return false;
     }
 
     public async Task<SpellsList?> GetAllSpells()
