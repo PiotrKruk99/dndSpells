@@ -1,17 +1,20 @@
 using Xunit;
 using FluentAssertions;
+using Moq;
 using webApi.Database;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace webApi.Tests;
 
 public class LiteDBOperTests
 {
     private LiteDBOper liteDBOper;
+    private Mock<ILogger<LiteDBOper>> _logger = new Mock<ILogger<LiteDBOper>>();
 
     public LiteDBOperTests()
     {
-        liteDBOper = new LiteDBOper();
+        liteDBOper = new LiteDBOper(_logger.Object);
     }
 
     [Fact]

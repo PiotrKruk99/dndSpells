@@ -8,9 +8,12 @@ public class LiteDBOper : ILiteDBOper
     private LiteDatabase? dataBase;
     private string filePath = @"AppData/apiData.ldb";
     public bool IsDatabase { get => dataBase == null ? false : true; }
+    private ILogger<LiteDBOper> _logger;
 
-    public LiteDBOper()
+    public LiteDBOper(ILogger<LiteDBOper> logger)
     {
+        _logger = logger;
+
         if (!OpenDatabase())
             throw new Exception("Cannot open database");
     }
@@ -41,11 +44,35 @@ public class LiteDBOper : ILiteDBOper
         }
         catch (LiteException exc)
         {
-            throw exc;
-        }
-        catch (Exception)
-        {
+            _logger.Log(LogLevel.Warning, exc.ToString());
             return false;
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Warning, exc.ToString());
+            return false;
+        }
+    }
+
+    private void SetLastUpdate()
+    {
+        if (dataBase is null && !OpenDatabase())
+            throw new Exception("database is closed and cannot be opened");
+
+        var col = dataBase!.GetCollection<LastUpdate>();
+
+        var lastUpdate = col.Query().FirstOrDefault();
+
+        if (lastUpdate is null)
+        {
+            lastUpdate = new LastUpdate();
+            lastUpdate.UpdateDate = DateTime.Now;
+            col.Insert(lastUpdate);
+        }
+        else
+        {
+            lastUpdate.UpdateDate = DateTime.Now;
+            col.Update(lastUpdate);
         }
     }
 
@@ -67,6 +94,41 @@ public class LiteDBOper : ILiteDBOper
 
     public bool UpdateDatabase(List<SpellLong> spellsList)
     {
-        throw new NotImplementedException("UpdateDatabase");
+        if (dataBase is null && !OpenDatabase())
+        {
+            _logger.Log(LogLevel.Warning, "database is closed and cannot be opened");
+            return false;
+        }
+
+        try
+        {
+            var col = dataBase!.GetCollection<SpellLong>();
+
+            col.DeleteAll();
+            col.Insert(spellsList);
+
+            SetLastUpdate();
+        }
+        catch (LiteException exc)
+        {
+            _logger.Log(LogLevel.Warning, exc.ToString());
+            return false;
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Warning, exc.ToString());
+            return false;
+        }
+
+        return true;
+    }
+
+    public SpellLong? GetSpell(string index)
+    {
+        if (dataBase is null && !OpenDatabase())
+            throw new Exception("database is closed and cannot be opened");
+
+        var col = dataBase!.GetCollection<SpellLong>();
+        return col.FindOne(x => x.index == index);
     }
 }

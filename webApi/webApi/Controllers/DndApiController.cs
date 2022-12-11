@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using webApi.Services;
-using webApi.Api;
 
 namespace webApi.Controllers;
 
@@ -24,11 +23,16 @@ public class DndApiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetSpell(string index)
+    public IActionResult GetSpell(string index)
     {
         if (index.Length == 0)
             return BadRequest();
+        
+        var spell = _apiService.GetSpell(index);
+
+        if (spell is not null)
+            return Ok(spell);
         else
-            return Ok(await _apiService.GetSpell(index));
+            return BadRequest(spell);
     }
 }

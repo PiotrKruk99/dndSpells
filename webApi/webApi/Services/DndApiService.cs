@@ -31,6 +31,10 @@ public class DndApiService : ApiService, IApiService
                 {
                     _logger.Log(LogLevel.Error, "error while updating database");
                 }
+                else
+                {
+                    _logger.Log(LogLevel.Information, "database updated successfully");
+                }
             };
 
         if (updateDatabaseTaskWatcher.IsCompleted && _ldbBase.GetLastUpdate().AddDays(1) < DateTime.Now)
@@ -91,26 +95,31 @@ public class DndApiService : ApiService, IApiService
         }
         catch (Exception exc)
         {
-            Console.WriteLine(exc.ToString());
+            _logger.Log(LogLevel.Error, exc.ToString());
             return null;
         }
 
         return allSpells;
     }
 
-    public async Task<SpellLong?> GetSpell(string index)
-    {
-        SpellLong? spell;
-        try
-        {
-            spell = await DndApi.GetSpell(index);
-        }
-        catch (Exception exc)
-        {
-            Console.WriteLine(exc.ToString());
-            return null;
-        }
+    // public async Task<SpellLong?> GetSpell(string index)
+    // {
+    //     SpellLong? spell;
+    //     try
+    //     {
+    //         spell = await DndApi.GetSpell(index);
+    //     }
+    //     catch (Exception exc)
+    //     {
+    //         _logger.Log(LogLevel.Error, exc.ToString());
+    //         return null;
+    //     }
 
-        return spell;
+    //     return spell;
+    // }
+
+    public SpellLong? GetSpell(string index)
+    {
+        return _ldbBase.GetSpell(index);
     }
 }
