@@ -54,9 +54,9 @@ public class DndApiControllerTests
     }
 
     [Fact]
-    public async void GetSpell_ShouldReturnBadRequest_Test()
+    public void GetSpell_ShouldReturnBadRequest_Test()
     {
-        var result = await _controller.GetSpell("");
+        var result = _controller.GetSpell("");
 
         result.Should().BeOfType<BadRequestResult>();
     }

@@ -5,6 +5,7 @@ using webApi.Database;
 using webApi.Services;
 using webApi.Api.DataClasses;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace webApi.Tests;
 
@@ -31,16 +32,24 @@ public class DndApiServiceTests
     [Theory]
     [InlineData("")]
     [InlineData("lalala")]
-    public async void GetSpell_ShouldReturnNull_Test(string index)
+    public void GetSpell_ShouldReturnNull_Test(string index)
     {
-        var result = await _dndApiService.GetSpell(index);
+        var result = _dndApiService.GetSpell(index);
         result.Should().BeNull();
     }
 
     [Fact]
-    public async void GetSpell_ShouldReturnValidSpell_Test()
+    public void GetSpell_ShouldReturnValidSpell_Test()
     {
-        SpellLong? result = await _dndApiService.GetSpell("fireball");
+        _liteDBOper.Setup(x => x.GetSpell("fireball")).Returns(new SpellLong() {
+            level = 3,
+            classes = new List<Class>() {
+                new Class(), 
+                new Class()
+            }
+        });
+
+        SpellLong? result = _dndApiService.GetSpell("fireball");
         result.Should().NotBeNull();
         result!.level.Should().Be(3);
         result.classes.Should().NotBeNull();
