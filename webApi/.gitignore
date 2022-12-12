@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 webApi/AppData/*
+!webApi/AppData/apiData.ldb
 
 # User-specific files
 *.rsuser

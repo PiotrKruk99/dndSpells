@@ -102,24 +102,16 @@ public class DndApiService : ApiService, IApiService
         return allSpells;
     }
 
-    // public async Task<SpellLong?> GetSpell(string index)
-    // {
-    //     SpellLong? spell;
-    //     try
-    //     {
-    //         spell = await DndApi.GetSpell(index);
-    //     }
-    //     catch (Exception exc)
-    //     {
-    //         _logger.Log(LogLevel.Error, exc.ToString());
-    //         return null;
-    //     }
-
-    //     return spell;
-    // }
-
     public SpellLong? GetSpell(string index)
     {
-        return _ldbBase.GetSpell(index);
+        try
+        {
+            return _ldbBase.GetSpell(index);
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Error, exc.ToString());
+            return null;
+        }
     }
 }
