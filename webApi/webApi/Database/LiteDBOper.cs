@@ -20,25 +20,25 @@ public class LiteDBOper : ILiteDBOper
 
     private bool OpenDatabase()
     {
-        if (IsDatabase)
-            return true;
-
-        string? directoryName = Path.GetDirectoryName(filePath);
-
-        if (directoryName is null)
-            throw new Exception("Invalid database directory");
-
-        if (!Directory.Exists(directoryName))
-            throw new Exception(Path.GetFullPath(directoryName) + " not exists");
-
-        var connStr = new ConnectionString
-        {
-            Connection = ConnectionType.Direct,
-            Filename = filePath
-        };
-
         try
         {
+            if (IsDatabase)
+                return true;
+
+            string? directoryName = Path.GetDirectoryName(filePath);
+
+            if (directoryName is null)
+                throw new Exception("Invalid database directory");
+
+            if (!Directory.Exists(directoryName))
+                throw new Exception(Path.GetFullPath(directoryName) + " not exists");
+
+            var connStr = new ConnectionString
+            {
+                Connection = ConnectionType.Direct,
+                Filename = filePath
+            };
+
             dataBase = new LiteDatabase(connStr);
             return true;
         }

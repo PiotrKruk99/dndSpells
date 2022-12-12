@@ -87,19 +87,15 @@ public class DndApiService : ApiService, IApiService
 
     public async Task<SpellsList?> GetAllSpells()
     {
-        SpellsList? allSpells;
-
         try
         {
-            allSpells = await DndApi.GetAllSpells();
+            return await DndApi.GetAllSpells();
         }
         catch (Exception exc)
         {
             _logger.Log(LogLevel.Error, exc.ToString());
             return null;
         }
-
-        return allSpells;
     }
 
     public SpellLong? GetSpell(string index)

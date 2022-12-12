@@ -1,5 +1,7 @@
 using webApi.Database;
 using webApi.Services;
+using webApi.Api.AutomapperProfiles;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ILiteDBOper, LiteDBOper>();
 builder.Services.AddTransient<IApiService, DndApiService>();
+builder.Services.AddAutoMapper(typeof(ApiClassesProfile));
 
 var app = builder.Build();
 
