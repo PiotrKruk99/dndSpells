@@ -5,23 +5,24 @@ namespace webApi.Api.DataClassesDto;
 public class SpellLongDto
 {
     public int Id { get; set; }
-    public string Index { get; set; } = string.Empty;
-    public string? name { get; set; }
-    public List<string>? desc { get; set; }
-    public List<string>? higher_level { get; set; }
-    public string? range { get; set; }
-    public List<string>? components { get; set; }
-    public string? material { get; set; }
-    public bool ritual { get; set; }
-    public string? duration { get; set; }
-    public bool concentration { get; set; }
-    public string? casting_time { get; set; }
-    public int level { get; set; }
-    public Damage? damage { get; set; }
-    public Dc? dc { get; set; }
-    public AreaOfEffect? area_of_effect { get; set; }
-    public School? school { get; set; }
-    public List<Class>? classes { get; set; }
-    public List<Subclass>? subclasses { get; set; }
-    public string? url { get; set; }
+    public required string Index { get; set; }
+    public required string Name { get; set; }
+    public required List<string> Desc { get; set; }
+    public required List<string> HigherLevel { get; set; }
+    public required string Range { get; set; }
+    public required List<string> Components { get; set; }
+    public required string Material { get; set; }
+    public bool Ritual { get; set; }
+    public required string Duration { get; set; }
+    public bool Concentration { get; set; }
+    public required string CastingTime { get; set; }
+    public int Level { get; set; }
+    public required string DamageType { get; set; }
+    public required string DcType { get; set; }
+    public required string OnDcSuccess { get; set; }
+    public required string AreaOfEffectType { get; set; }
+    public int AreaOfEffectSize { get; set; }
+    public required string School { get; set; }
+    public required List<string> Classes { get; set; }
+    public required List<string> Subclasses { get; set; }
 }
