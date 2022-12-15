@@ -35,13 +35,21 @@ public class LiteDBOperTests
         ((DateTime)result).Should().BeBefore(DateTime.Now);
     }
 
-    // [Fact]
-    // public void ComponentsTest()
-    // {
-    //     var colls = liteDBOper.GetAllSpellsLong();
-    //     var spells = colls.Where(x => x.components == null || x.components.Count == 0);
+    [Fact]
+    public void FieldTest()
+    {
+        var colls = liteDBOper.GetAllSpellsLong();
+        // var spells = colls.Where(x => x.duration == null || x.duration.Length == 0);
+        // var spells = colls.Where(x => x.casting_time == null || x.casting_time.Length == 0);
+        // var spells = colls.Where(x => x.higher_level == null || x.higher_level.Count == 0);
+        // var spells = colls.Where(x => x.range == null || x.range.Length == 0);
+        // var spells = colls.Where(x => x.material == null || x.material.Length == 0);
+        var spells = colls.Where(x => x.damage == null || x.damage.damage_type == null 
+                        || x.damage.damage_type.name == null || x.damage.damage_type.name.Length == 0);
 
-    //     spells.Should().NotBeNull();
-    //     spells.Count().Should().Be(0);
-    // }
+        colls.Should().NotBeNull();
+        colls.Count().Should().BeGreaterThan(0);
+        spells.Should().NotBeNull();
+        spells.Count().Should().Be(0);
+    }
 }
