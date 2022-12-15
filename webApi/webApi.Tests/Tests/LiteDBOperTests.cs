@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using webApi.Database;
 using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace webApi.Tests;
@@ -33,4 +34,14 @@ public class LiteDBOperTests
         result.Should().BeOfType<DateTime>();
         ((DateTime)result).Should().BeBefore(DateTime.Now);
     }
+
+    // [Fact]
+    // public void ComponentsTest()
+    // {
+    //     var colls = liteDBOper.GetAllSpellsLong();
+    //     var spells = colls.Where(x => x.components == null || x.components.Count == 0);
+
+    //     spells.Should().NotBeNull();
+    //     spells.Count().Should().Be(0);
+    // }
 }

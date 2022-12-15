@@ -15,7 +15,7 @@ public class LiteDBOper : ILiteDBOper
         _logger = logger;
 
         if (!OpenDatabase())
-            throw new Exception("Cannot open database");
+            throw new Exception("Cannot open or create database. Is AppData folder exists?");
     }
 
     private bool OpenDatabase()
@@ -31,7 +31,7 @@ public class LiteDBOper : ILiteDBOper
                 throw new Exception("Invalid database directory");
 
             if (!Directory.Exists(directoryName))
-                throw new Exception(Path.GetFullPath(directoryName) + " not exists");
+                Directory.CreateDirectory(directoryName);
 
             var connStr = new ConnectionString
             {
@@ -130,5 +130,15 @@ public class LiteDBOper : ILiteDBOper
 
         var col = dataBase!.GetCollection<SpellLong>();
         return col.FindOne(x => x.index == index);
+    }
+
+    public IEnumerable<SpellLong> GetAllSpellsLong()
+    {
+        if (dataBase is null && !OpenDatabase())
+            throw new Exception("database is closed and cannot be opened");
+
+        var col = dataBase!.GetCollection<SpellLong>();
+
+        return col.FindAll();
     }
 }
