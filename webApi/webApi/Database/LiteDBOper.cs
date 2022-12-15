@@ -108,6 +108,8 @@ public class LiteDBOper : ILiteDBOper
             col.Insert(spellsList);
 
             SetLastUpdate();
+
+            dataBase.Checkpoint();
         }
         catch (LiteException exc)
         {
