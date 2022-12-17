@@ -1,5 +1,5 @@
 using LiteDB;
-using webApi.Api.DataClasses;
+using webApi.Api.DataClassesDto;
 
 namespace webApi.Database;
 
@@ -92,7 +92,7 @@ public class LiteDBOper : ILiteDBOper
 
     }
 
-    public bool UpdateDatabase(List<SpellLong> spellsList)
+    public bool UpdateDatabase(List<SpellLongDto> spellsList)
     {
         if (dataBase is null && !OpenDatabase())
         {
@@ -102,7 +102,7 @@ public class LiteDBOper : ILiteDBOper
 
         try
         {
-            var col = dataBase!.GetCollection<SpellLong>();
+            var col = dataBase!.GetCollection<SpellLongDto>();
 
             col.DeleteAll();
             col.Insert(spellsList);
@@ -125,21 +125,21 @@ public class LiteDBOper : ILiteDBOper
         return true;
     }
 
-    public SpellLong? GetSpell(string index)
+    public SpellLongDto? GetSpell(string index)
     {
         if (dataBase is null && !OpenDatabase())
             throw new Exception("database is closed and cannot be opened");
 
-        var col = dataBase!.GetCollection<SpellLong>();
-        return col.FindOne(x => x.index == index);
+        var col = dataBase!.GetCollection<SpellLongDto>();
+        return col.FindOne(x => x.Index == index);
     }
 
-    public IEnumerable<SpellLong> GetAllSpellsLong()
+    public IEnumerable<SpellLongDto> GetAllSpellsLong()
     {
         if (dataBase is null && !OpenDatabase())
             throw new Exception("database is closed and cannot be opened");
 
-        var col = dataBase!.GetCollection<SpellLong>();
+        var col = dataBase!.GetCollection<SpellLongDto>();
 
         return col.FindAll();
     }

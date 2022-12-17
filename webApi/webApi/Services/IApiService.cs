@@ -1,9 +1,10 @@
 using webApi.Api.DataClasses;
+using webApi.Api.DataClassesDto;
 
 namespace webApi.Services;
 
 public interface IApiService
 {
     public Task<SpellsList?> GetAllSpells();
-    public SpellLong? GetSpell(string index);
+    public SpellLongDto? GetSpell(string index);
 }

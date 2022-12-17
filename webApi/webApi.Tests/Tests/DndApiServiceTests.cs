@@ -6,6 +6,8 @@ using webApi.Services;
 using webApi.Api.DataClasses;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using AutoMapper;
+using webApi.Api.DataClassesDto;
 
 namespace webApi.Tests;
 
@@ -14,10 +16,11 @@ public class DndApiServiceTests
     private readonly Mock<ILiteDBOper> _liteDBOper = new Mock<ILiteDBOper>();
     private DndApiService _dndApiService;
     private Mock<ILogger<DndApiService>> _logger = new Mock<ILogger<DndApiService>>();
+    private Mock<IMapper> _mapper = new Mock<IMapper>();
 
     public DndApiServiceTests()
     {
-        _dndApiService = new DndApiService(_liteDBOper.Object, _logger.Object);
+        _dndApiService = new DndApiService(_liteDBOper.Object, _logger.Object, _mapper.Object);
     }
 
     [Fact]
@@ -41,11 +44,11 @@ public class DndApiServiceTests
     [Fact]
     public void GetSpell_ShouldReturnValidSpell_Test()
     {
-        _liteDBOper.Setup(x => x.GetSpell("fireball")).Returns(new SpellLong() {
-            level = 3,
-            classes = new List<Class>() {
-                new Class(), 
-                new Class()
+        _liteDBOper.Setup(x => x.GetSpell("fireball")).Returns(new SpellLongDto() {
+            Level = 3,
+            Classes = new List<string>() {
+                "Bard", 
+                "Cleric"
             }
         });
 

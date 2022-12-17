@@ -1,5 +1,7 @@
+using AutoMapper;
 using webApi.Api;
 using webApi.Api.DataClasses;
+using webApi.Api.DataClassesDto;
 using webApi.Database;
 
 namespace webApi.Services;
@@ -8,14 +10,17 @@ public class DndApiService : ApiService, IApiService
 {
     private readonly ILiteDBOper _ldbBase;
     private readonly ILogger<DndApiService> _logger;
+    private readonly IMapper _mapper;
     private Task<bool> updateDatabaseTask = new Task<bool>(() => { return true; });
     private static Task updateDatabaseTaskWatcher = Task.CompletedTask;
     private Action updateDatabaseAction;
 
-    public DndApiService(ILiteDBOper ldbBase, ILogger<DndApiService> logger) : base(ldbBase, logger)
+    public DndApiService(ILiteDBOper ldbBase, ILogger<DndApiService> logger, 
+                            IMapper mapper) : base(ldbBase, logger)
     {
         _ldbBase = ldbBase;
         _logger = logger;
+        _mapper = mapper;
 
         updateDatabaseAction = () =>
             {
@@ -54,22 +59,23 @@ public class DndApiService : ApiService, IApiService
             return false;
         }
 
-        List<SpellLong> spellsList = new List<SpellLong>();
+        List<SpellLongDto> spellsList = new List<SpellLongDto>();
 
         foreach (var spellShort in allSpells.results)
         {
             if (spellShort.index is not null)
             {
                 var spellLong = await DndApi.GetSpell(spellShort.index);
+                var spellLongDto = _mapper.Map<SpellLongDto>(spellLong);
 
-                if (spellLong is null)
+                if (spellLongDto is null)
                 {
-                    _logger.Log(LogLevel.Warning, "spellLong null reference");
+                    _logger.Log(LogLevel.Warning, "spellLongDto null reference");
                     return false;
                 }
                 else
                 {
-                    spellsList.Add(spellLong);
+                    spellsList.Add(spellLongDto);
                 }
             }
             else
@@ -98,7 +104,7 @@ public class DndApiService : ApiService, IApiService
         }
     }
 
-    public SpellLong? GetSpell(string index)
+    public SpellLongDto? GetSpell(string index)
     {
         try
         {

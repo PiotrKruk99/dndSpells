@@ -4,7 +4,6 @@ namespace webApi.Api.DataClassesDto;
 
 public class SpellLongDto
 {
-    // public int Id { get; set; }
     public required string Index { get; set; }
     public required string Name { get; set; }
     public required List<string> Desc { get; set; }

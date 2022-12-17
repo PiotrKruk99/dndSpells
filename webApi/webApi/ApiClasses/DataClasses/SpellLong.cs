@@ -2,7 +2,6 @@ namespace webApi.Api.DataClasses;
 
 public class SpellLong
 {
-    public int _id { get; set; }
     public string? index { get; set; }
     public string? name { get; set; }
     public List<string>? desc { get; set; }
@@ -21,5 +20,4 @@ public class SpellLong
     public School? school { get; set; }
     public List<Class>? classes { get; set; }
     public List<Subclass>? subclasses { get; set; }
-    public string? url { get; set; }
 }
