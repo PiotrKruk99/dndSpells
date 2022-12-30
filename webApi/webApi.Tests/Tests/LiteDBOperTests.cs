@@ -53,6 +53,6 @@ public class LiteDBOperTests
         colls.Should().NotBeNull();
         colls.Count().Should().BeGreaterThan(0);
         spells.Should().NotBeNull();
-        spells.Count().Should().Be(0);
+        spells.Count().Should().BeGreaterThan(0);
     }
 }

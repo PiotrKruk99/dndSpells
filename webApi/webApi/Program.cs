@@ -1,7 +1,6 @@
 using webApi.Database;
 using webApi.Services;
 using webApi.Api.AutomapperProfiles;
-using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
