@@ -92,7 +92,7 @@ public class LiteDBOper : ILiteDBOper
 
     }
 
-    public bool UpdateDatabase(List<SpellLongDto> spellsList)
+    public bool UpdateDatabase(List<SpellLongDto> spellsList, List<SpellShortDto> spellshortList)
     {
         if (dataBase is null && !OpenDatabase())
         {
@@ -102,10 +102,15 @@ public class LiteDBOper : ILiteDBOper
 
         try
         {
-            var col = dataBase!.GetCollection<SpellLongDto>();
+            var colLong = dataBase!.GetCollection<SpellLongDto>();
 
-            col.DeleteAll();
-            col.Insert(spellsList);
+            colLong.DeleteAll();
+            colLong.Insert(spellsList);
+
+            var colShort = dataBase!.GetCollection<SpellShortDto>();
+
+            colShort.DeleteAll();
+            colShort.Insert(spellshortList);
 
             SetLastUpdate();
 

@@ -60,6 +60,7 @@ public class DndApiService : ApiService, IApiService
         }
 
         List<SpellLongDto> spellsList = new List<SpellLongDto>();
+        List<SpellShortDto> spellShortDtos = new List<SpellShortDto>();
 
         foreach (var spellShort in allSpells.results)
         {
@@ -67,6 +68,9 @@ public class DndApiService : ApiService, IApiService
             {
                 var spellLong = await DndApi.GetSpell(spellShort.index);
                 var spellLongDto = _mapper.Map<SpellLongDto>(spellLong);
+                var spellShortDto = _mapper.Map<SpellShortDto>(spellShort);
+
+                spellShortDtos.Add(spellShortDto);
 
                 if (spellLongDto is null)
                 {
@@ -85,7 +89,7 @@ public class DndApiService : ApiService, IApiService
             }
         }
 
-        if (_ldbBase.UpdateDatabase(spellsList))
+        if (_ldbBase.UpdateDatabase(spellsList, spellShortDtos))
             return true;
         else
             return false;

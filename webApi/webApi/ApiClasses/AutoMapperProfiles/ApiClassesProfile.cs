@@ -144,5 +144,9 @@ public class ApiClassesProfile : Profile
             .ForMember(dest => dest.School, map => map.MapFrom(src => FromNotEmptySchoolName(src.school)))
             .ForMember(dest => dest.Classes, map => map.MapFrom(src => FromNotEmptyClasses(src.classes)))
             .ForMember(dest => dest.Subclasses, map => map.MapFrom(src => FromSubclasses(src.subclasses)));
+
+        CreateMap<SpellShort, SpellShortDto>()
+            .ForMember(dest => dest.Index, map => map.MapFrom(src => FromNotEmptyString(src.index)))
+            .ForMember(dest => dest.Name, map => map.MapFrom(src => FromNotEmptyString(src.name)));
     }
 }
