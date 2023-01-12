@@ -10,8 +10,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ILiteDBOper, LiteDBOper>();
-builder.Services.AddTransient<IApiService, DndApiService>();
+builder.Services.AddScoped<ILiteDBOper, LiteDBOper>();
+builder.Services.AddScoped<IApiService, DndApiService>();
 builder.Services.AddAutoMapper(typeof(ApiClassesProfile));
 
 var app = builder.Build();

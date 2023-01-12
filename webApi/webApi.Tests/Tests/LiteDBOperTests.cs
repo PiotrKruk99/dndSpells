@@ -5,6 +5,7 @@ using webApi.Database;
 using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using webApi.Api.DataClassesDto;
 
 namespace webApi.Tests;
 
@@ -22,13 +23,12 @@ public class LiteDBOperTests
     public void ConstructorTest()
     {
         liteDBOper.Should().NotBeNull();
-        liteDBOper.IsDatabase.Should().BeTrue();
     }
 
     [Fact]
-    public void GetLastUpdate_Should_Return_NotNull_DateTime()
+    public async void GetLastUpdate_Should_Return_NotNull_DateTime()
     {
-        object? result = liteDBOper.GetLastUpdate();
+        object? result = await liteDBOper.GetLastUpdate();
 
         result.Should().NotBeNull();
         result.Should().BeOfType<DateTime>();
@@ -36,9 +36,13 @@ public class LiteDBOperTests
     }
 
     [Fact]
-    public void FieldTest()
+    public async void FieldTest()
     {
-        var colls = liteDBOper.GetAllSpellsLong();
+        var colls = await liteDBOper.GetAllSpells<SpellLongDto>();
+
+        colls.Should().NotBeNull();
+        colls!.Count().Should().BeGreaterThan(0);
+
         // var spells = colls.Where(x => x.duration == null || x.duration.Length == 0);
         // var spells = colls.Where(x => x.casting_time == null || x.casting_time.Length == 0);
         // var spells = colls.Where(x => x.higher_level == null || x.higher_level.Count == 0);
@@ -48,10 +52,8 @@ public class LiteDBOperTests
         //                 || x.damage.damage_type.name == null || x.damage.damage_type.name.Length == 0);
         // var spells = colls.Where(x => x.school == null || x.school.name == null || x.school.name.Length == 0);
         // var spells = colls.Where(x => x.classes == null || x.classes.Count == 0);
-        var spells = colls.Where(x => x.Subclasses.Count == 0);
+        var spells = colls!.Where(x => x.Subclasses.Count == 0);
 
-        colls.Should().NotBeNull();
-        colls.Count().Should().BeGreaterThan(0);
         spells.Should().NotBeNull();
         spells.Count().Should().BeGreaterThan(0);
     }

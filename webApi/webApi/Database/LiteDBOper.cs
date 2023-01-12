@@ -1,30 +1,26 @@
 using LiteDB;
+using LiteDB.Async;
 using webApi.Api.DataClassesDto;
 
 namespace webApi.Database;
 
 public class LiteDBOper : ILiteDBOper
 {
-    private LiteDatabase? dataBase;
     private string filePath = @"AppData/apiData.ldb";
-    public bool IsDatabase { get => dataBase == null ? false : true; }
     private ILogger<LiteDBOper> _logger;
 
     public LiteDBOper(ILogger<LiteDBOper> logger)
     {
         _logger = logger;
 
-        if (!OpenDatabase())
-            throw new Exception("Cannot open or create database. Is AppData folder exists?");
+        // if (!OpenDatabase())
+        //     throw new Exception("Cannot open or create database. Is AppData folder exists?");
     }
 
-    private bool OpenDatabase()
+    private LiteDatabaseAsync? OpenDatabase(bool readOnly = false)
     {
         try
         {
-            if (IsDatabase)
-                return true;
-
             string? directoryName = Path.GetDirectoryName(filePath);
 
             if (directoryName is null)
@@ -35,117 +31,177 @@ public class LiteDBOper : ILiteDBOper
 
             var connStr = new ConnectionString
             {
-                Connection = ConnectionType.Direct,
-                Filename = filePath
+                Connection = ConnectionType.Shared,
+                Filename = filePath,
+                ReadOnly = readOnly
             };
 
-            dataBase = new LiteDatabase(connStr);
-            return true;
+            var dataBase = new LiteDatabaseAsync(connStr);
+            return dataBase;
         }
         catch (LiteException exc)
         {
-            _logger.Log(LogLevel.Warning, exc.ToString());
-            return false;
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
         }
         catch (Exception exc)
         {
-            _logger.Log(LogLevel.Warning, exc.ToString());
-            return false;
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
         }
     }
 
-    private void SetLastUpdate()
+    private async Task SetLastUpdate()
     {
-        if (dataBase is null && !OpenDatabase())
-            throw new Exception("database is closed and cannot be opened");
-
-        var col = dataBase!.GetCollection<LastUpdate>();
-
-        var lastUpdate = col.Query().FirstOrDefault();
-
-        if (lastUpdate is null)
-        {
-            lastUpdate = new LastUpdate();
-            lastUpdate.UpdateDate = DateTime.Now;
-            col.Insert(lastUpdate);
-        }
-        else
-        {
-            lastUpdate.UpdateDate = DateTime.Now;
-            col.Update(lastUpdate);
-        }
-    }
-
-    public DateTime GetLastUpdate()
-    {
-        if (dataBase is null && !OpenDatabase())
-            throw new Exception("database is closed and cannot be opened");
-
-        var col = dataBase!.GetCollection<LastUpdate>();
-
-        var lastUpdate = col.Query().FirstOrDefault();
-
-        if (lastUpdate is not null)
-            return lastUpdate.UpdateDate;
-        else
-            return DateTime.Now.AddDays(-2);
-
-    }
-
-    public bool UpdateDatabase(List<SpellLongDto> spellsList, List<SpellShortDto> spellshortList)
-    {
-        if (dataBase is null && !OpenDatabase())
-        {
-            _logger.Log(LogLevel.Warning, "database is closed and cannot be opened");
-            return false;
-        }
-
         try
         {
-            var colLong = dataBase!.GetCollection<SpellLongDto>();
+            using (var dataBase = OpenDatabase())
+            {
+                if (dataBase is null)
+                    throw new Exception("database is closed and cannot be opened");
 
-            colLong.DeleteAll();
-            colLong.Insert(spellsList);
+                var col = dataBase.GetCollection<LastUpdate>();
 
-            var colShort = dataBase!.GetCollection<SpellShortDto>();
+                var lastUpdate = await col.Query().FirstOrDefaultAsync();
 
-            colShort.DeleteAll();
-            colShort.Insert(spellshortList);
-
-            SetLastUpdate();
-
-            dataBase.Checkpoint();
+                if (lastUpdate is null)
+                {
+                    lastUpdate = new LastUpdate();
+                    lastUpdate.UpdateDate = DateTime.Now;
+                    await col.InsertAsync(lastUpdate);
+                }
+                else
+                {
+                    lastUpdate.UpdateDate = DateTime.Now;
+                    await col.UpdateAsync(lastUpdate);
+                }
+            }
         }
         catch (LiteException exc)
         {
-            _logger.Log(LogLevel.Warning, exc.ToString());
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return;
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return;
+        }
+    }
+
+    public async Task<DateTime?> GetLastUpdate()
+    {
+        try
+        {
+            using (var dataBase = OpenDatabase())
+            {
+                if (dataBase is null)
+                    throw new Exception("database is closed and cannot be opened");
+
+                var col = dataBase.GetCollection<LastUpdate>();
+
+                var lastUpdate = await col.Query().FirstOrDefaultAsync();
+
+                if (lastUpdate is not null)
+                    return lastUpdate.UpdateDate;
+                else
+                    return DateTime.Now.AddDays(-2);
+            }
+        }
+        catch (LiteException exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
+        }
+
+    }
+
+    public async Task<bool> UpdateDatabase<T>(List<T> elemsList)
+    {
+        try
+        {
+            using (var dataBase = OpenDatabase())
+            {
+                if (dataBase is null)
+                    throw new Exception("database is closed and cannot be opened");
+
+                var cols = dataBase!.GetCollection<T>();
+
+                await cols.DeleteAllAsync();
+                await cols.InsertAsync(elemsList);
+
+                await SetLastUpdate();
+
+                await dataBase.CheckpointAsync();
+
+                return true;
+            }
+        }
+        catch (LiteException exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
             return false;
         }
         catch (Exception exc)
         {
-            _logger.Log(LogLevel.Warning, exc.ToString());
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
             return false;
         }
-
-        return true;
     }
 
-    public SpellLongDto? GetSpell(string index)
+    public async Task<SpellLongDto?> GetSpell(string index)
     {
-        if (dataBase is null && !OpenDatabase())
-            throw new Exception("database is closed and cannot be opened");
+        try
+        {
+            using (var dataBase = OpenDatabase())
+            {
+                if (dataBase is null)
+                    throw new Exception("database is closed and cannot be opened");
 
-        var col = dataBase!.GetCollection<SpellLongDto>();
-        return col.FindOne(x => x.Index == index);
+                var col = dataBase!.GetCollection<SpellLongDto>();
+                return await col.FindOneAsync(x => x.Index == index);
+            }
+        }
+        catch (LiteException exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
+        }
     }
 
-    public IEnumerable<SpellLongDto> GetAllSpellsLong()
+    public async Task<IEnumerable<T>?> GetAllSpells<T>()
     {
-        if (dataBase is null && !OpenDatabase())
-            throw new Exception("database is closed and cannot be opened");
+        try
+        {
+            using (var dataBase = OpenDatabase())
+            {
+                if (dataBase is null)
+                    throw new Exception("database is closed and cannot be opened");
 
-        var col = dataBase!.GetCollection<SpellLongDto>();
+                var col = dataBase!.GetCollection<T>();
 
-        return col.FindAll();
+                return await col.FindAllAsync();
+            }
+        }
+        catch (LiteException exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
+        }
+        catch (Exception exc)
+        {
+            _logger.Log(LogLevel.Warning, exc, exc.ToString());
+            return null;
+        }
     }
 }

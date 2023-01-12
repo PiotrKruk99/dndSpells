@@ -1,6 +1,5 @@
 using AutoMapper;
 using webApi.Api;
-using webApi.Api.DataClasses;
 using webApi.Api.DataClassesDto;
 using webApi.Database;
 
@@ -11,11 +10,11 @@ public class DndApiService : ApiService, IApiService
     private readonly ILiteDBOper _ldbBase;
     private readonly ILogger<DndApiService> _logger;
     private readonly IMapper _mapper;
-    private Task<bool> updateDatabaseTask = new Task<bool>(() => { return true; });
+    private static Task<bool> updateDatabaseTask = new Task<bool>(() => { return true; });
     private static Task updateDatabaseTaskWatcher = Task.CompletedTask;
     private Action updateDatabaseAction;
 
-    public DndApiService(ILiteDBOper ldbBase, ILogger<DndApiService> logger, 
+    public DndApiService(ILiteDBOper ldbBase, ILogger<DndApiService> logger,
                             IMapper mapper) : base(ldbBase, logger)
     {
         _ldbBase = ldbBase;
@@ -28,7 +27,7 @@ public class DndApiService : ApiService, IApiService
                 {
                     foreach (var exc in updateDatabaseTask.Exception.Flatten().InnerExceptions)
                     {
-                        _logger.Log(LogLevel.Warning, exc.ToString());
+                        _logger.Log(LogLevel.Warning, exc, exc.ToString());
                     }
                 }
 
@@ -42,10 +41,31 @@ public class DndApiService : ApiService, IApiService
                 }
             };
 
-        if (updateDatabaseTaskWatcher.IsCompleted && _ldbBase.GetLastUpdate().AddDays(1) < DateTime.Now)
+        if (updateDatabaseTaskWatcher.IsCompleted && ShouldBeUpdated())
         {
             updateDatabaseTask = UpdateDatabase();
             updateDatabaseTaskWatcher = updateDatabaseTask.ContinueWith(x => updateDatabaseAction());
+        }
+    }
+
+    private bool ShouldBeUpdated()
+    {
+        try
+        {
+            var lastUpdateTask = _ldbBase.GetLastUpdate();
+            lastUpdateTask.Wait();
+
+            var lastUpdate = lastUpdateTask.Result;
+
+            if (lastUpdate is not null && lastUpdate.Value.AddDays(1) < DateTime.Now)
+                return true;
+            else
+                return false;
+        }
+        catch (Exception exc)
+        {
+            _logger.LogError(exc, "error during  getting last update date");
+            return false;
         }
     }
 
@@ -59,7 +79,7 @@ public class DndApiService : ApiService, IApiService
             return false;
         }
 
-        List<SpellLongDto> spellsList = new List<SpellLongDto>();
+        List<SpellLongDto> spellLongDtos = new List<SpellLongDto>();
         List<SpellShortDto> spellShortDtos = new List<SpellShortDto>();
 
         foreach (var spellShort in allSpells.results)
@@ -79,7 +99,7 @@ public class DndApiService : ApiService, IApiService
                 }
                 else
                 {
-                    spellsList.Add(spellLongDto);
+                    spellLongDtos.Add(spellLongDto);
                 }
             }
             else
@@ -89,35 +109,25 @@ public class DndApiService : ApiService, IApiService
             }
         }
 
-        if (_ldbBase.UpdateDatabase(spellsList, spellShortDtos))
-            return true;
+        var result = await _ldbBase.UpdateDatabase<SpellLongDto>(spellLongDtos);
+
+        result = result && (await _ldbBase.UpdateDatabase<SpellShortDto>(spellShortDtos));
+
+        return result;
+    }
+
+    public async Task<IEnumerable<SpellShortDto>?> GetAllSpells()
+    {
+        var result = await _ldbBase.GetAllSpells<SpellShortDto>();
+
+        if (result is null || result.Count() == 0)
+            return null;
         else
-            return false;
+            return result;
     }
 
-    public async Task<SpellsList?> GetAllSpells()
+    public async Task<SpellLongDto?> GetSpell(string index)
     {
-        try
-        {
-            return await DndApi.GetAllSpells();
-        }
-        catch (Exception exc)
-        {
-            _logger.Log(LogLevel.Error, exc.ToString());
-            return null;
-        }
-    }
-
-    public SpellLongDto? GetSpell(string index)
-    {
-        try
-        {
-            return _ldbBase.GetSpell(index);
-        }
-        catch (Exception exc)
-        {
-            _logger.Log(LogLevel.Error, exc.ToString());
-            return null;
-        }
+        return await _ldbBase.GetSpell(index);
     }
 }

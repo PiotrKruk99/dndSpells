@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using webApi.Database;
 using webApi.Services;
-using webApi.Api.DataClasses;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using AutoMapper;
@@ -28,23 +27,22 @@ public class DndApiServiceTests
     {
         var result = await _dndApiService.GetAllSpells();
         result.Should().NotBeNull();
-        result.Should().NotBeNull();
-        result!.count.Should().BeGreaterThan(0);
+        result!.Should().NotBeNullOrEmpty();
     }
 
     [Theory]
     [InlineData("")]
     [InlineData("lalala")]
-    public void GetSpell_ShouldReturnNull_Test(string index)
+    public async void GetSpell_ShouldReturnNull_Test(string index)
     {
-        var result = _dndApiService.GetSpell(index);
+        var result = await _dndApiService.GetSpell(index);
         result.Should().BeNull();
     }
 
     [Fact]
-    public void GetSpell_ShouldReturnValidSpell_Test()
+    public async void GetSpell_ShouldReturnValidSpell_Test()
     {
-        _liteDBOper.Setup(x => x.GetSpell("fireball")).Returns(new SpellLongDto()
+        _liteDBOper.Setup(x => x.GetSpell("fireball")).ReturnsAsync(new SpellLongDto()
         {
             Level = 3,
             Classes = new List<string>() {
@@ -81,7 +79,7 @@ public class DndApiServiceTests
             }
         });
 
-        SpellLongDto? result = _dndApiService.GetSpell("fireball");
+        SpellLongDto? result = await _dndApiService.GetSpell("fireball");
         result.Should().NotBeNull();
         result!.Level.Should().Be(3);
         result.Classes.Should().NotBeNull();

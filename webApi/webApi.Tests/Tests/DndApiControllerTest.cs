@@ -7,6 +7,7 @@ using webApi.Controllers;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
+using webApi.Api.DataClassesDto;
 
 namespace webApi.Tests;
 
@@ -27,36 +28,29 @@ public class DndApiControllerTests
     public async void GetAllSpells_Controller_Test()
     {
         _service.Setup(x => x.GetAllSpells())
-                .ReturnsAsync(new SpellsList()
-                {
-                    count = 1,
-                    results = new List<SpellShort>() {
-                        new SpellShort() {
-                            index = "fireball",
-                            name = "Fireball",
-                            url = @"http://some.url"
+                .ReturnsAsync(new List<SpellShortDto>()
+                    {
+                        new SpellShortDto() {
+                            Index = "fireball",
+                            Name = "Fireball",
                         }
-                    }
-                });
+                    });
 
         var result = await _controller.GetAllSpells() as ObjectResult;
 
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(200);
-        result!.Value.Should().NotBeNull();
-        (result!.Value as SpellsList)!.count.Should().Be(1);
-        (result!.Value as SpellsList)!.results.Should().NotBeNull();
-        (result!.Value as SpellsList)!.results!.Count.Should().Be(1);
-        (result!.Value as SpellsList)!.results!.Count.Should().Be(1);
-        (result!.Value as SpellsList)!.results![0].index.Should().Be("fireball");
-        (result!.Value as SpellsList)!.results![0].name.Should().Be("Fireball");
-        (result!.Value as SpellsList)!.results![0].url.Should().Be(@"http://some.url");
+        result.Value.Should().NotBeNull();
+        result.Value.Should().BeOfType<List<SpellShortDto>>();
+        (result.Value as List<SpellShortDto>).Should().HaveCount(1);
+        (result.Value as List<SpellShortDto>)![0].Index.Should().Be("fireball");
+        (result.Value as List<SpellShortDto>)![0].Name.Should().Be("Fireball");
     }
 
     [Fact]
-    public void GetSpell_ShouldReturnBadRequest_Test()
+    public async void GetSpell_ShouldReturnBadRequest_Test()
     {
-        var result = _controller.GetSpell("");
+        var result = await _controller.GetSpell("");
 
         result.Should().BeOfType<BadRequestResult>();
     }

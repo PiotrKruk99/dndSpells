@@ -4,8 +4,8 @@ namespace webApi.Database;
 
 public interface ILiteDBOper
 {
-    public bool IsDatabase { get; }
-    public DateTime GetLastUpdate();
-    public bool UpdateDatabase(List<SpellLongDto> spellsList, List<SpellShortDto> spellshortList);
-    public SpellLongDto? GetSpell(string index);
+    public Task<DateTime?> GetLastUpdate();
+    public Task<bool> UpdateDatabase<T>(List<T> elemsList);
+    public Task<SpellLongDto?> GetSpell(string index);
+    public Task<IEnumerable<T>?> GetAllSpells<T>();
 }

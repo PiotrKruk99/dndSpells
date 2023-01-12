@@ -19,20 +19,25 @@ public class DndApiController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllSpells()
     {
-        return Ok(await _apiService.GetAllSpells());
+        var result = await _apiService.GetAllSpells();
+        
+        if (result is not null)
+            return Ok(result);
+        else
+            return BadRequest(result);
     }
 
     [HttpGet]
-    public IActionResult GetSpell(string index)
+    public async Task<IActionResult> GetSpell(string index)
     {
         if (index.Length == 0)
             return BadRequest();
-        
-        var spell = _apiService.GetSpell(index);
 
-        if (spell is not null)
-            return Ok(spell);
+        var result = await _apiService.GetSpell(index);
+
+        if (result is not null)
+            return Ok(result);
         else
-            return BadRequest(spell);
+            return BadRequest(result);
     }
 }
