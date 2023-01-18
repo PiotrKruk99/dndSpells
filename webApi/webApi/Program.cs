@@ -1,6 +1,6 @@
-using webApi.Database;
 using webApi.Services;
 using webApi.Api.AutomapperProfiles;
+using webApi.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<ILiteDBOper, LiteDBOper>();
+builder.Services.AddDbContext<DataContext>();
 builder.Services.AddScoped<IApiService, DndApiService>();
 builder.Services.AddAutoMapper(typeof(ApiClassesProfile));
 

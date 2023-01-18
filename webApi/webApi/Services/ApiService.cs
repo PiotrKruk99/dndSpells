@@ -4,6 +4,6 @@ namespace webApi.Services;
 
 public abstract class ApiService
 {
-    public ApiService(ILiteDBOper ldbBase, ILogger<DndApiService> logger)
+    public ApiService(DataContext context, ILogger<DndApiService> logger)
     { }
 }
