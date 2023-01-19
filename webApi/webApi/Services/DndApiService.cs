@@ -4,6 +4,7 @@ using webApi.Api.DataClassesDto;
 using webApi.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using webApi.Api.DataClasses;
 
 namespace webApi.Services;
 
@@ -92,16 +93,31 @@ public class DndApiService : ApiService, IApiService
 
         List<SpellLongDto> spellLongDtos = new List<SpellLongDto>();
         List<SpellShortDto> spellShortDtos = new List<SpellShortDto>();
+        List<Task<SpellLong?>> spellTasks = new List<Task<SpellLong?>>();
 
         foreach (var spellShort in allSpells.results)
         {
             if (spellShort.index is not null)
             {
-                var spellLong = await DndApi.GetSpell(spellShort.index);
-                var spellLongDto = _mapper.Map<SpellLongDto>(spellLong);
-                var spellShortDto = _mapper.Map<SpellShortDto>(spellShort);
+                spellTasks.Add(DndApi.GetSpell(spellShort.index));
 
+                var spellShortDto = _mapper.Map<SpellShortDto>(spellShort);
                 spellShortDtos.Add(spellShortDto);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Warning, "spellShort.index null reference");
+                return false;
+            }
+        }
+
+        Task.WaitAll(spellTasks.ToArray());
+
+        foreach (var spellLong in spellTasks)
+        {
+            if (spellLong.Result is not null)
+            {
+                var spellLongDto = _mapper.Map<SpellLongDto>(spellLong.Result);
 
                 if (spellLongDto is null)
                 {
@@ -123,40 +139,8 @@ public class DndApiService : ApiService, IApiService
         ///////// writing data to local database ///////////
 
         using var context = new DataContext();
-        // using var context = _serviceProvider.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
         using var transaction = context.Database.BeginTransaction();
-
-        // Task[] addTasks = new Task[]
-        // {
-        //     Task.Factory.StartNew(async () => {
-        //                             context.RemoveRange(context.SpellLongDtos.AsNoTracking().ToList());
-        //                             await context.SaveChangesAsync();
-        //                             context.SpellLongDtos.AddRange(spellLongDtos);
-        //                             await context.SaveChangesAsync();
-        //     }),
-        //     Task.Factory.StartNew(async () => {
-        //                             context.RemoveRange(context.SpellShortDtos.AsNoTracking().ToList());
-        //                             await context.SaveChangesAsync();
-        //                             context.SpellShortDtos.AddRange(spellShortDtos);
-        //                             await context.SaveChangesAsync();
-        //     }),
-        //     Task.Factory.StartNew(async () => {
-        //                             LastUpdate? lastUpdate = context.LastUpdates.FirstOrDefault();
-        //                             if (lastUpdate is null)
-        //                             {
-        //                                 lastUpdate = new LastUpdate() { UpdateDate = DateTime.Now };
-        //                                 context.LastUpdates.Add(lastUpdate);
-        //                             }
-        //                             else
-        //                             {
-        //                                 lastUpdate.UpdateDate = DateTime.Now;
-        //                                 context.LastUpdates.Update(lastUpdate);
-        //                             }
-        //                             await context.SaveChangesAsync();
-        //     }),
-        // };
-
-        // Task.WaitAll(addTasks);
+        // using var context = _serviceProvider.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
 
         context.RemoveRange(context.SpellLongDtos.AsNoTracking().ToList());
         context.SpellLongDtos.AddRange(spellLongDtos);
