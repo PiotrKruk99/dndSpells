@@ -8,6 +8,6 @@ The next step is to create VueJS mobile first application that will use methods 
 
 # used technologies
 
-Webapi part is based on `.NET 6.0` and `LiteDB` library. It is tested with xUnit tests and manually with Swagger.
+Webapi part is based on `.NET 7` and `Sqlite` library. It is tested with xUnit tests and manually with Swagger.
 
 Frontend application is based on `VueJS` and `Axios` for communication with api.
