@@ -3,7 +3,6 @@ using webApi.Api;
 using webApi.Api.DataClassesDto;
 using webApi.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using webApi.Api.DataClasses;
 
 namespace webApi.Services;
@@ -19,9 +18,9 @@ public class DndApiService : ApiService, IApiService
     private Action updateDatabaseAction;
 
     public DndApiService(DataContext context,
-                            ILogger<DndApiService> logger,
-                            IMapper mapper,
-                            IServiceProvider serviceProvider) : base(context, logger)
+                        ILogger<DndApiService> logger,
+                        IMapper mapper,
+                        IServiceProvider serviceProvider) : base(context, logger)
     {
         _context = context;
         _logger = logger;
